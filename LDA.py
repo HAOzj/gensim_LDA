@@ -3,6 +3,7 @@ import os
 import re
 from gensim.corpora import MmCorpus
 import gensim
+import math
 from Normalizer import (Normalizer, print_run_time, make_dir)
 
         
@@ -26,8 +27,10 @@ class LDA():
         self.num_topics = num_topics
         if self.vectorizer == "tfidf":
             self.model = self._createAndSave_lda_tfidf(self.corpora_txt, self.id2word_fname, self.ldaModel_save_repo, self.num_topics)
+            self.model_fname = self.ldaModel_save_repo+'/gensim_tfidf/crawl_news.model'
         else:
             self.model = self._createAndSave_lda_bow(self.corpora_txt, self.id2word_fname, self.ldaModel_save_repo, self.num_topics)
+            self.model_fname = self.ldaModel_save_repo + '/gensim_bow/crawl_news.model'
 
     @staticmethod
     def _create_corporaListAndCorporaText(normalizer, corpora_source, corpora_txt, id2word_fname):
@@ -145,11 +148,11 @@ class LDA():
 
         MmCorpus.serialize('corpus_tfidf.mm', [id2word.doc2bow(corpus.split(" ")) for corpus in corpora])
         mm = MmCorpus('corpus_tfidf.mm')
-        lda_tfidf = gensim.models.LdaModel(corpus= mm, id2word= id2word, num_topics= num_topics)
+        lda_tfidf = gensim.models.LdaModel(corpus=mm, id2word=id2word, num_topics=num_topics)
 
         make_dir(ldaModel_save_repo+'/gensim_tfidf')
         if not os.path.isfile(ldaModel_save_repo+'/gensim_tfidf/crawl_news.model'):
-            lda_tfidf.save( ldaModel_save_repo+'/gensim_tfidf/crawl_news.model' )
+            lda_tfidf.save(ldaModel_save_repo+'/gensim_tfidf/crawl_news.model')
             print('lda_tfidf saved')
         else:
             print(ldaModel_save_repo, '/gensim_tfidf/crawl_news.model already exists')
@@ -158,8 +161,40 @@ class LDA():
     @staticmethod
     def analysis_topics(fname):
         '''将各个主题的关键字打印出来
+
+        把self.model.print_topics(10)保存到fname后打印出来
         '''
         f = open(fname, 'r')
         lines = f.readlines()
         for line in lines:
             print(re.findall(r'\"([^\"]*)\"', line))
+
+    @staticmethod
+    def _short_long_similarity(lda_fname, normalizer, id2word_fname, short, long):
+        '''计算长短文本的相似度
+        Args:
+            lda_fname(path) :- gensim.models.ldamodel的保存路径
+            id2word_fnmae(path) :- gensim.corpora.Dictionary的保存路径
+            short(str) :- 短文本
+            long(str) :- 长文本
+        Returns:
+            prob(float) :- 长短文本的匹配度
+            Theta(iterables) :- 长文本在lda模型下的主题分布概率,
+                                每个元素为(主题的序号, 对应主题的概率)
+        '''
+        lda = gensim.models.LdaModel.load(lda_fname)
+        id2word = gensim.corpora.Dictionary.load(id2word_fname)
+        Theta = lda[id2word.doc2bow(normalizer.tokenize(long))]
+        short = normalizer.tokenize(short)
+        short = set(short)
+        short = id2word.doc2idx(short)
+        prob = 0
+        for word in short :
+            prob_w = sum([lda.expElogbeta[k][word]*1000 * p_zk for (k,p_zk) in Theta])
+            prob += math.log(prob_w)
+        prob = prob/len(short)
+        prob -= math.log(1000)
+        return prob, Theta
+
+    def short_long_sim(self, short, long):
+        return self._short_long_similarity(self.model_fname, self.normalizer, self.id2word_fname, short, long)
