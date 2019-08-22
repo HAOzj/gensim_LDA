@@ -33,26 +33,27 @@ def print_run_time(func):
     return wrapper
 
 
-class Normalizer():
-    def __init__(self, stopWordsFile=None):
-        self.stopWordsFile = "D:\git\word_cloud\python\stopwords.txt"
-        if stopWordsFile:
-            self.stopWordsFile = stopWordsFile
+class Normalizer(object):
+    """文本标准化的类
 
-        self.stopWords = "《 ， 。 ． 》 ; ［ ］（ ） “ ”  ！ ＆ \n \t \ / -' ( ) . text ' …  x000d - > x000d".split(' ')
-        self.stopWords.append('"')
-        self.stopWords.append(' ')
+    """
+    def __init__(self, stopwords_path):
+        self.stopwords_path = stopwords_path
+
+        self.stopwords = "《 ， 。 ． 》 ; ［ ］（ ） “ ”  ！ ＆ \n \t \ / -' ( ) . text ' …  x000d - > x000d".split(' ')
+        self.stopwords.append('"')
+        self.stopwords.append(' ')
 
     @print_run_time
-    def load_stopWords(self):
-        if not os.path.isfile(self.stopWordsFile):
-            raise OSError(self.stopWordsFile, "doesn't exist")
+    def load_stopwords(self):
+        if not os.path.isfile(self.stopwords_path):
+            raise OSError(self.stopwords_path, "doesn't exist")
 
-        with open(self.stopWordsFile, 'r', encoding="utf8") as f:
+        with open(self.stopwords_path, 'r', encoding="utf8") as f:
             lines = f.readlines()
             for line in lines:
                 line = self.conversion(line)
-                self.stopWords.append(line.replace('\n', ''))
+                self.stopwords.append(line.replace('\n', ''))
 
     def load_userdict_from_dir(self, term_dir):
         """收集术语.txt来建设字典"""
@@ -73,7 +74,7 @@ class Normalizer():
             inside_code = ord(s)
             if str(inside_code) in Q2B_DICT:
                 inside_code = Q2B_DICT[str(inside_code)]
-            elif inside_code >= 65281 and inside_code <= 65374:  # 全角字符根据关系转化
+            elif 65281 <= inside_code <= 65374:  # 全角字符根据关系转化
                 inside_code -= 65248
 
             ss += chr(inside_code)
@@ -93,6 +94,6 @@ class Normalizer():
         """
         string = self.conversion(string)
         string_list = list(jieba.cut(string, cut_all=False))
-        string_list = [word for word in string_list if word not in self.stopWords]
+        string_list = [word for word in string_list if word not in self.stopwords]
         string_list = [word for word in string_list if not word.isspace()]
         return string_list
