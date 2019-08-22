@@ -1,4 +1,10 @@
+# !/usr/bin/python
 # -*- coding: UTF-8 -*-
+"""
+Created on Aug 22, 2019
+
+@author: woshihaozhaojun@sina.com
+"""
 import os
 import re
 from optparse import OptionParser
@@ -6,14 +12,10 @@ from gensim.corpora import MmCorpus
 import gensim
 import math
 from Normalizer import (Normalizer, print_run_time, make_dir)
-
-corpus_tfidf_mm = "corpus_tfidf.mm"
-corpora_dir = "crawl_news"  # 爬取的新闻都放在该文件夹下,每个新闻一个.txt文件
-corpora_path = "corpora.txt"
-id2word_path = "id2word"
-model_dir = "model"
-model_fname = "crawl_news.model"
-num_topics = 10
+from conf_loader import (
+    corpus_tfidf_mm, corpora_dir, corpora_path, id2word_path,
+    model_dir, model_fname, num_topics
+)
 
         
 class LDA(object):
