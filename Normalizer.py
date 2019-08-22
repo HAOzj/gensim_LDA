@@ -8,6 +8,7 @@ def make_dir(path):
     if not os.path.isdir(path):
         os.mkdir(path)
 
+
 Q2B_DICT = {
     "12288": 32,  # 全角空格直接转换
     "12290": 46,  # 。-> .
@@ -19,8 +20,8 @@ Q2B_DICT = {
 
 
 def print_run_time(func):
-    ''' 计算时间函数
-    '''
+    """ 计算时间函数
+    """
 
     def wrapper(*args, **kw):
         local_time = time.time()
@@ -54,7 +55,7 @@ class Normalizer():
                 self.stopWords.append(line.replace('\n', ''))
 
     def load_userdict_from_dir(self, term_dir):
-        '''收集术语.txt来建设字典'''
+        """收集术语.txt来建设字典"""
         if not os.path.isdir(term_dir):
             raise OSError(term_dir, "doesn't exist")
         for name in os.listdir(term_dir):
@@ -64,33 +65,32 @@ class Normalizer():
                 print("load userdict : {}".format(term_file))
 
     def _DBC2SBC(self, ustring):
-        '''全角转半角
-        '''
+        """全角转半角
+        """
         ss = ""
 
         for s in ustring:
             inside_code = ord(s)
             if str(inside_code) in Q2B_DICT:
                 inside_code = Q2B_DICT[str(inside_code)]
-
-            elif (inside_code >= 65281 and inside_code <= 65374):  # 全角字符根据关系转化
+            elif inside_code >= 65281 and inside_code <= 65374:  # 全角字符根据关系转化
                 inside_code -= 65248
 
             ss += chr(inside_code)
         return ss
 
     def conversion(self, string):
-        ''' 全半角\大小写转化
-        '''
+        """ 全半角\大小写转化
+        """
         return self._DBC2SBC(string).lower()
 
     def tokenize(self, string):
-        ''' 文本标准化
+        """ 文本标准化
 
         1. 全角转半角
         2. 大写转小写
         3. 分词后去stop words
-        '''
+        """
         string = self.conversion(string)
         string_list = list(jieba.cut(string, cut_all=False))
         string_list = [word for word in string_list if word not in self.stopWords]
