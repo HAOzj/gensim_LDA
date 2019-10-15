@@ -6,6 +6,8 @@ Created on the 25th Dec, 2017
 from pymongo import MongoClient
 import xlsxwriter
 import xlwt
+
+
 def write_xlsx_from_Mongo(ser, cli, collections, xlsx_fname):
     """ 从Mongo中提取数据存入.xlsx文件
 
@@ -34,15 +36,16 @@ def write_xlsx_from_Mongo(ser, cli, collections, xlsx_fname):
             row += 1
     wb.close()
 
+    
 def write_xls_from_Mongo(ser, cli, collections, xls_fname):
-    '''将MongoDB中数据读入本地.xls文件
+    """将MongoDB中数据读入本地.xls文件
 
     Args :
         ser(path) :- MongoDB的地址
         cli(str) :- MongoDB中client名字
         collections(dict) :- (collection, 该collection的keys列表)的(key,value)对
         xls_fname(path) :- 要存入.xls文件地址
-    '''
+    """
     client = MongoClient(ser)
     db = client[cli]
     book = xlwt.Workbook()
@@ -51,7 +54,6 @@ def write_xls_from_Mongo(ser, cli, collections, xls_fname):
         ws = book.add_sheet(collection)
         num_col = len(keys)
         row = 0
-        
         
         for item in db[collection].find():
             # .xls有行数限制,一旦超过65536行就换worksheet
