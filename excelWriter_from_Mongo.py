@@ -1,8 +1,8 @@
-'''
+"""
 Created on the 25th Dec, 2017
 
-@author : HAO Zhaojun
-'''
+@author: woshihaozhaojun@sina.com 
+"""
 from pymongo import MongoClient
 import xlsxwriter
 import xlwt
