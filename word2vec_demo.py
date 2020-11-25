@@ -5,9 +5,12 @@ Created on NOV 24, 2020
 @author: woshihaozhaojun@sina.com
 """
 import os
+from Normalizer import print_run_time
 from tqdm import tqdm
 import json
 from gensim.models import word2vec
+
+
 input_dir = "click_seq_json"
 output_file = "corpora/1.txt"
 model_path = "model/word2vec"
@@ -15,13 +18,16 @@ vid2title_path = "map_json/vid2title.json"
 target = "mzc00200ydcnajl"
 
 
+@print_run_time
 def _convert_json_to_ssf(input_dir, output_file):
     """把json文件转化为word2vec模型可读得space separated file
     用于feed word2vec.LineSentence接口
     """
     out_fp = open(output_file, "w")
+    print("---start processing click sequence files---")
     for file in os.listdir(input_dir):
         input_file = os.path.join(input_dir, file)
+        print("load", input_file)
         with open(input_file, "r") as fp:
             lines = fp.readlines()
             for line in tqdm(lines):
@@ -32,6 +38,7 @@ def _convert_json_to_ssf(input_dir, output_file):
     out_fp.close()
 
 
+@print_run_time
 def _get_vid_to_title(file_path):
     """生成视频id和名字的map
     """
@@ -49,11 +56,32 @@ def _get_vid_to_title(file_path):
 
 _convert_json_to_ssf(input_dir, output_file)
 vid2title = _get_vid_to_title(vid2title_path)
-sentences = word2vec.LineSentence(output_file)
-model = word2vec.Word2Vec(sentences, hs=1, min_count=5, window=5, size=100)
+
+
+@print_run_time
+def load_sentence():
+    return word2vec.LineSentence(output_file)
+
+
+sentences = load_sentence()
+
+
+@print_run_time
+def train_model(sentences):
+    return word2vec.Word2Vec(sentences, hs=1, min_count=5, window=5, size=32)
+
+
+model = train_model(sentences)
 model.save(model_path)
-res = model.similar_by_word(target, topn=20)
-print(vid2title[target])
-for item in res:
-    print(vid2title.get(item[0], "未知"), item[1])
+
+
+@print_run_time
+def find_similar(target=target):
+    res = model.similar_by_word(target, topn=20)
+    print(vid2title[target])
+    for item in res:
+        print(vid2title.get(item[0], "未知"), item[1])
+
+
+find_similar()
 
