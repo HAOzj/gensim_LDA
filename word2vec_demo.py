@@ -25,9 +25,10 @@ def _convert_json_to_ssf(input_dir, output_file):
         with open(input_file, "r") as fp:
             lines = fp.readlines()
             for line in tqdm(lines):
-                val = json.loads(line).get("value", "")
-                if val:
-                    out_fp.write(val + "\n")
+                click_seq = json.loads(line).get("click_seq", "")
+                if click_seq:
+                    click_seq = [vid.split("_")[0] for vid in click_seq]
+                    out_fp.write(" ".join(click_seq) + "\n")
     out_fp.close()
 
 
