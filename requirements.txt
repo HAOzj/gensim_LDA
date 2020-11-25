@@ -1,2 +1,6 @@
 jieba
 gensim
+pymongo
+xlsxwriter
+xlwt
+tqdm

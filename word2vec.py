@@ -57,24 +57,3 @@ print(vid2title[target])
 for item in res:
     print(vid2title.get(item[0], "未知"), item[1])
 
-
-"""
-import org.apache.spark.sql.SaveMode
-val sqlContext = spark.sqlContext
-val table = "middleoffice.media_video_zt_detail"
-
-def readMysql(sqlContext:SQLContext,table: String)={
-    /**中台数据库**/
-    val sqlUrlMiddle = "jdbc:mysql://10.111.14.177:3306/middleoffice"
-    val propMiddle = new Properties()
-    propMiddle.put("user", "middleoffice")
-    propMiddle.put("password", "1KXaVOYcDk933psB")
-    propMiddle.put("driver", "com.mysql.jdbc.Driver")
-    sqlContext.read.jdbc(sqlUrlMiddle, table, propMiddle)
-}
-
-val vid2title = readMysql(sqlContext, table).selectExpr("cover_id", "title").dropDuplicates("cover_id")
-      
-val file_path = "/recommend/haozhaojun/vid2title"
-vid2title.write.mode(SaveMode.Overwrite).json(file_path)
-"""
