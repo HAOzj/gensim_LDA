@@ -19,9 +19,10 @@ from conf_loader import (
 
         
 class LDA(object):
-    def __init__(self, vectorizer="tfidf", stopwords_path=None):
+    def __init__(self, vectorizer="tfidf", is_text=True, stopwords_path=None):
         self.vectorizer = vectorizer
         self.stopwords_path = stopwords_path
+        self.is_text = is_text
         self.normalizer = Normalizer(self.stopwords_path)
         self.normalizer.load_stopwords()
         
@@ -47,8 +48,7 @@ class LDA(object):
                                      self.model_dir, self.model_fname, self.num_topics)
         self.model_path = os.path.join(self.model_dir, self.vectorizer, self.model_fname)
 
-    @staticmethod
-    def _transform_corpora(normalizer, corpora_dir, corpora_path, id2word_path):
+    def _transform_corpora(self, normalizer, corpora_dir, corpora_path, id2word_path):
         """转化语料
 
         1. 从{corpora_dir}文件夹下提取所有.txt文件作为语料
@@ -78,7 +78,10 @@ class LDA(object):
                 with open(file, encoding="utf8") as f:
                     lines = f.readlines()
                     for line in lines:
-                        words = normalizer.tokenize(line)
+                        if self.is_text:
+                            words = normalizer.tokenize(line)
+                        else:
+                            words = line.split(" ")
                         if len(words) > 0:
                             corpora.append(words) 
                             output_tfidf.write('{}\n'.format(" ".join(words)))

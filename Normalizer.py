@@ -25,10 +25,11 @@ def print_run_time(func):
 
     def wrapper(*args, **kw):
         local_time = time.time()
-        func(*args, **kw)
+        res = func(*args, **kw)
         print('Current function : {function}, time used : {temps}'.format(
             function=func.__name__, temps=time.time() - local_time)
         )
+        return res
 
     return wrapper
 
@@ -55,7 +56,8 @@ class Normalizer(object):
                 line = self.conversion(line)
                 self.stopwords.append(line.replace('\n', ''))
 
-    def load_userdict_from_dir(self, term_dir):
+    @staticmethod
+    def load_userdict_from_dir(term_dir):
         """收集术语.txt来建设字典"""
         if not os.path.isdir(term_dir):
             raise OSError(term_dir, "doesn't exist")

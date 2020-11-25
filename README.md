@@ -12,3 +12,4 @@ pip install -r requirements.txt [-i  https://pypi.doubanio.com/simple/  --truste
 
 python main.py [-s 龙妈\] [-l "风暴降生丹妮莉丝 安达尔人、罗伊纳人及先民的女王 七国统治者兼全境守护 大草海的卡丽熙 不焚者 镣铐破碎者 弥撒 弥林的女王 龙母"\]
 ```
+
