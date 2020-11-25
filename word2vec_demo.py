@@ -11,13 +11,6 @@ import json
 from gensim.models import word2vec
 
 
-input_dir = "click_seq_json"
-output_file = "corpora/1.txt"
-model_path = "model/word2vec"
-vid2title_path = "map_json/vid2title.json"
-target = "mzc00200ydcnajl"
-
-
 @print_run_time
 def _convert_json_to_ssf(input_dir, output_file):
     """把json文件转化为word2vec模型可读得space separated file
@@ -39,7 +32,7 @@ def _convert_json_to_ssf(input_dir, output_file):
 
 
 @print_run_time
-def _get_vid_to_title(file_path):
+def get_vid_to_title(file_path):
     """生成视频id和名字的map
     """
     vid2title = dict()
@@ -54,16 +47,9 @@ def _get_vid_to_title(file_path):
     return vid2title
 
 
-_convert_json_to_ssf(input_dir, output_file)
-vid2title = _get_vid_to_title(vid2title_path)
-
-
 @print_run_time
-def load_sentence():
+def load_sentence(output_file):
     return word2vec.LineSentence(output_file)
-
-
-sentences = load_sentence()
 
 
 @print_run_time
@@ -71,17 +57,30 @@ def train_model(sentences):
     return word2vec.Word2Vec(sentences, hs=1, min_count=5, window=5, size=32)
 
 
-model = train_model(sentences)
-model.save(model_path)
-
-
 @print_run_time
-def find_similar(target=target):
+def find_similar(model, target, vid2title):
     res = model.similar_by_word(target, topn=20)
     print(vid2title[target])
     for item in res:
         print(vid2title.get(item[0], "未知"), item[1])
 
 
-find_similar()
+input_dir = "click_seq_json"
+output_file = "corpora/1.txt"
+model_path = "model/word2vec"
+vid2title_path = "map_json/vid2title.json"
+target = "mzc00200ydcnajl"
+
+
+def main():
+    _convert_json_to_ssf(input_dir, output_file)
+    vid2title = get_vid_to_title(vid2title_path)
+    sentences = load_sentence(output_file)
+    model = train_model(sentences)
+    model.save(model_path)
+    find_similar(model, target, vid2title)
+
+
+if __name__ == "__main__":
+    main()
 
